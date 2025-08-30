@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最難関中学受験カリキュラム</title>
+    <!-- Tailwind CSS CDNを読み込み -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 日本語フォントを優先的に設定 */
+        body {
+            font-family: 'Inter', 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <!-- メインコンテナ -->
+    <div id="app" class="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">理想の学習カリキュラム</h1>
+            <p class="text-gray-500 mt-1">最難関校を目指すキミへ</p>
+        </header>
+
+        <!-- メインビューのコンテナ -->
+        <div id="main-view"></div>
+    </div>
+
+    <script>
+        // アプリケーションのグローバル状態
+        const state = {
+            currentView: 'grade',
+            selectedGrade: null,
+            selectedSubject: null,
+        };
+
+        // 全体の学習カリキュラムデータ
+        const curriculumData = {
+            '1年生': {
+                '算数': [
+                    { title: 'かずとけいさん', content: '100までの数を数える、たし算とひき算の基本を学びます。' },
+                    { title: 'かたち', content: '身の回りにある様々な形を見つけ、名前を覚え、特徴を理解します。' },
+                    { title: 'たし算・ひき算の応用', content: '2桁のたし算・ひき算や文章題に挑戦し、論理的な思考力を養います。' },
+                ],
+                '国語': [
+                    { title: 'ひらがな・カタカナ', content: 'すべてのひらがなとカタカナを正しく読み書きできるようにします。' },
+                    { title: 'ぶんをつくる', content: '「だれが、なにを、どうした」の簡単な文の作り方を学びます。' },
+                    { title: 'かん字', content: '小学校で習う基本的な漢字を、正しい筆順で書けるように練習します。' },
+                ],
+                '理科': [
+                    { title: 'いきもののようす', content: '犬、猫、魚、昆虫など、身近な生き物の体のつくりや生活の様子を観察します。' },
+                    { title: 'きせつのへんか', content: '春夏秋冬それぞれの季節の天気、植物や生き物の変化について学びます。' },
+                ],
+                '社会': [
+                    { title: 'がっこうせいかつ', content: '学校の施設や、先生、友達との関わり方について学びます。' },
+                    { title: 'まちたんけん', content: '学校の周りのお店や公共施設を探検し、地図にまとめて発表します。' },
+                ],
+            },
+            '2年生': {
+                '算数': [
+                    { title: 'たし算・ひき算（ひっさん）', content: '2桁、3桁のたし算とひき算の筆算をマスターします。' },
+                    { title: 'かけ算', content: 'かけ算の意味を理解し、九九を完璧に覚えます。' },
+                    { title: 'グラフとひょう', content: 'グラフや表の読み方・書き方を学び、情報を整理する力を養います。' },
+                ],
+                '国語': [
+                    { title: 'かん字', content: '2年生で習う漢字を読み書きし、熟語や部首についても学習します。' },
+                    { title: 'せつめい文', content: '説明文を読んで、大切なことや、筆者が伝えたいことを読み取る練習をします。' },
+                ],
+                '理科': [
+                    { title: 'しょくぶつ', content: 'アサガオやトマトなど、植物が芽を出し、花を咲かせ、実をつけるまでの様子を観察します。' },
+                    { title: 'どうぶつ', content: 'カエルやチョウ、カブトムシなど、様々な動物の育ち方を学びます。' },
+                ],
+                '社会': [
+                    { title: 'せいかつ', content: '自分の周りの生活や、家族の役割について学びます。' },
+                    { title: 'がっこうのまわり', content: '学校の周りの地図記号を覚え、地図を読み取る練習をします。' },
+                ],
+            },
+            '3年生': {
+                '算数': [
+                    { title: 'わり算', content: 'わり算の考え方を学び、簡単なわり算ができるようにします。' },
+                    { title: '分数', content: '分数の意味を理解し、簡単な分数のたし算・ひき算に挑戦します。' },
+                    { title: 'ながさと重さ', content: '長さ（cm, m, km）や重さ（g, kg）の単位を学び、計算に活用します。' },
+                ],
+                '国語': [
+                    { title: 'かん字', content: '3年生で習う漢字を習得し、漢字を使った語彙力を高めます。' },
+                    { title: 'ものがたり文', content: '物語の場面や登場人物の気持ちを深く読み取る力を養います。' },
+                    { title: '比喩表現', content: '比喩（たとえ）の表現を学び、文章の面白さを感じ取ります。' },
+                ],
+                '理科': [
+                    { title: 'こんちゅう', content: 'カマキリやテントウムシなど、昆虫の体のつくりと成長過程を詳しく学びます。' },
+                    { title: 'じしゃく', content: '磁石の性質や、N極・S極の引き合う・反発する力について実験を通じて学びます。' },
+                ],
+                '社会': [
+                    { title: 'じゅうたく', content: '昔の家と今の家の違いや、日本の気候と住居の関係について学びます。' },
+                    { title: 'くらしのうつりかわり', content: '昔の道具や人々の生活の様子を学び、現代の暮らしとの違いを考えます。' },
+                ],
+            },
+            '4年生': {
+                '算数': [
+                    { title: '約数・倍数', content: '約数・倍数の概念を理解し、最小公倍数・最大公約数を求める練習をします。' },
+                    { title: '植木算・和差算', content: '文章を正確に読み取り、論理的に式を立てる力を養います。' },
+                    { title: '図形の面積', content: '長方形・正方形・三角形の面積公式を理解し、複合図形の面積を求める問題に挑戦します。' },
+                    { title: '場合の数', content: '場合の数の基本的な考え方を学び、樹形図などを活用して数え上げられるようにします。' },
+                ],
+                '国語': [
+                    { title: '読解の基本', content: '説明的文章・物語文の読み方を学び、筆者の主張や登場人物の心情を読み取る練習をします。' },
+                    { title: '言葉の知識', content: '語彙力を増やすために、慣用句やことわざ、同音異義語などを学習します。' },
+                ],
+                '理科': [
+                    { title: '昆虫と植物', content: '昆虫の体のつくりや植物の成長過程を観察し、まとめます。' },
+                    { title: '電気と磁石', content: '基本的な回路の仕組みや、磁石の性質を実験を通じて学びます。' },
+                ],
+                '社会': [
+                    { title: '日本の地理', content: '日本の47都道府県と主要な地形、産業の特徴を学びます。' },
+                    { title: '歴史のあゆみ', content: '日本の歴史を旧石器時代から平安時代まで、流れを追って学習します。' },
+                ],
+            },
+            '5年生': {
+                '算数': [
+                    { title: '割合と比', content: '割合と比の概念を深く理解し、様々な応用問題に対応できるようにします。' },
+                    { title: '速さ', content: '「距離＝速さ×時間」の公式を使いこなせるようになり、旅人算や通過算に挑戦します。' },
+                    { title: '図形の相似', content: '図形の相似の性質を理解し、相似比を利用して問題を解く練習をします。' },
+                    { title: '数列', content: '数列の規則性を見つけ、等差数列や階差数列の問題を解けるようにします。' },
+                ],
+                '国語': [
+                    { title: '複雑な文章読解', content: '複数の登場人物や複雑な論理展開の文章を読み解く力を養います。' },
+                    { title: '古典', content: '古文・漢文の基本的な文法や重要語句を学習し、古典に慣れ親しみます。' },
+                ],
+                '理科': [
+                    { title: '水溶液の性質', content: '酸性・アルカリ性など、水溶液の性質を化学式と合わせて学びます。' },
+                    { title: '天体の動き', content: '月や太陽、惑星の動きの規則性を図を用いて理解します。' },
+                ],
+                '社会': [
+                    { title: '歴史（中世〜近世）', content: '鎌倉時代から江戸時代まで、日本の歴史の重要な出来事を深く学びます。' },
+                    { title: '日本の産業', content: '日本の農業・漁業・工業・商業の現状と課題について学習します。' },
+                ],
+            },
+            '6年生': {
+                '算数': [
+                    { title: '立体図形', content: '立体の体積や表面積、切断の問題など、難度の高い問題に挑戦します。' },
+                    { title: '総合演習', content: 'これまでの学習内容を総復習し、入試本番を想定した問題演習を繰り返します。' },
+                ],
+                '国語': [
+                    { title: '記述問題対策', content: '設問の意図を正確に読み取り、論理的で分かりやすい文章を作成する練習をします。' },
+                    { title: '入試問題演習', content: '最新の入試問題を解き、出題傾向を分析し、弱点を克服します。' },
+                ],
+                '理科': [
+                    { title: '総合問題演習', content: '生物・化学・物理・地学を横断的に問う問題に取り組み、思考力を鍛えます。' },
+                    { title: '実験問題対策', content: '与えられた実験データから考察し、解答を導き出す力を養います。' },
+                ],
+                '社会': [
+                    { title: '政治・経済', content: '日本の政治の仕組みや経済、国際関係について深く学習します。' },
+                    { title: '時事問題対策', content: '最近のニュースや社会情勢について知識を整理し、入試に備えます。' },
+                ],
+            },
+        };
+
+        const mainView = document.getElementById('main-view');
+
+        // ビューをレンダリングする関数
+        function renderView() {
+            mainView.innerHTML = '';
+            let content = '';
+
+            // ナビゲーションボタンの作成
+            const createBackButton = () => {
+                if (state.currentView !== 'grade') {
+                    const backButton = document.createElement('button');
+                    backButton.className = 'absolute top-6 left-6 text-gray-600 hover:text-gray-800 transition duration-300';
+                    backButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                    </svg>`;
+                    backButton.onclick = () => {
+                        if (state.currentView === 'subject') {
+                            state.currentView = 'grade';
+                            state.selectedGrade = null;
+                        } else if (state.currentView === 'topicList') {
+                            state.currentView = 'subject';
+                            state.selectedSubject = null;
+                        } else if (state.currentView === 'topicDetail') {
+                            state.currentView = 'topicList';
+                        }
+                        renderView();
+                    };
+                    return backButton;
+                }
+                return null;
+            };
+
+            // 各ビューのレンダリング
+            if (state.currentView === 'grade') {
+                content = `
+                    <h2 class="text-2xl font-semibold text-center mb-4 text-gray-700">学年を選択してください</h2>
+                    <div class="space-y-4">
+                        ${Object.keys(curriculumData).map(grade => `
+                            <div class="grade-card bg-gray-50 p-4 rounded-lg shadow-sm hover:bg-gray-100 transition duration-300 cursor-pointer text-center" data-grade="${grade}">
+                                <span class="text-lg font-medium text-gray-800">${grade}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (state.currentView === 'subject') {
+                content = `
+                    <h2 class="text-2xl font-semibold text-center mb-4 text-gray-700">${state.selectedGrade}の科目</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        ${Object.keys(curriculumData[state.selectedGrade]).map(subject => `
+                            <div class="subject-card bg-gray-50 p-4 rounded-lg shadow-sm hover:bg-gray-100 transition duration-300 cursor-pointer text-center" data-subject="${subject}">
+                                <span class="text-lg font-medium text-gray-800">${subject}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (state.currentView === 'topicList') {
+                const topics = curriculumData[state.selectedGrade][state.selectedSubject];
+                content = `
+                    <h2 class="text-2xl font-semibold text-center mb-4 text-gray-700">${state.selectedGrade} ${state.selectedSubject}</h2>
+                    <div class="space-y-3">
+                        ${topics.map((topic, index) => `
+                            <div class="topic-card bg-gray-50 p-4 rounded-lg shadow-sm hover:bg-gray-100 transition duration-300 cursor-pointer" data-topic-index="${index}">
+                                <h3 class="text-lg font-medium text-gray-800">${topic.title}</h3>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (state.currentView === 'topicDetail') {
+                const topics = curriculumData[state.selectedGrade][state.selectedSubject];
+                const topic = topics[state.selectedTopicIndex];
+                content = `
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-4">${topic.title}</h2>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <p class="text-gray-600">${topic.content}</p>
+                    </div>
+                    <div class="mt-6 text-sm text-gray-500">
+                      <p>※ これはデモ用のカリキュラムです。実際の学習では、さらに詳しい解説や例題が必要です。</p>
+                    </div>
+                `;
+            }
+
+            mainView.innerHTML = content;
+            const backBtn = createBackButton();
+            if (backBtn) {
+                mainView.prepend(backBtn);
+            }
+            addEventListeners();
+        }
+
+        // イベントリスナーを追加する関数
+        function addEventListeners() {
+            if (state.currentView === 'grade') {
+                document.querySelectorAll('.grade-card').forEach(card => {
+                    card.onclick = () => {
+                        state.selectedGrade = card.dataset.grade;
+                        state.currentView = 'subject';
+                        renderView();
+                    };
+                });
+            } else if (state.currentView === 'subject') {
+                document.querySelectorAll('.subject-card').forEach(card => {
+                    card.onclick = () => {
+                        state.selectedSubject = card.dataset.subject;
+                        state.currentView = 'topicList';
+                        renderView();
+                    };
+                });
+            } else if (state.currentView === 'topicList') {
+                document.querySelectorAll('.topic-card').forEach(card => {
+                    card.onclick = () => {
+                        state.selectedTopicIndex = card.dataset.topicIndex;
+                        state.currentView = 'topicDetail';
+                        renderView();
+                    };
+                });
+            }
+        }
+
+        // 初期描画
+        document.addEventListener('DOMContentLoaded', renderView);
+
+    </script>
+</body>
+</html>
